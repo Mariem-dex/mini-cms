@@ -16,3 +16,10 @@ $renderBienvenue = function () {
 
 Route::get('/bienvenu', $renderBienvenue);
 Route::get('/bienvenue', $renderBienvenue);
+
+Route::get('/a-propos', function () {
+    return view('a-propos', [
+        'auteur' => 'Meriem',
+        'groupe' => 'Groupe 1',
+    ]);
+});
