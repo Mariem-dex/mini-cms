@@ -1,10 +1,9 @@
 <?php
 
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PageController::class, 'home']);
 
 $renderBienvenue = function () {
     return view('bienvenu', [
@@ -17,9 +16,11 @@ $renderBienvenue = function () {
 Route::get('/bienvenu', $renderBienvenue);
 Route::get('/bienvenue', $renderBienvenue);
 
-Route::get('/a-propos', function () {
-    return view('a-propos', [
-        'auteur' => 'Meriem',
-        'groupe' => 'Groupe 1',
+Route::get('/a-propos', [PageController::class, 'about']);
+
+Route::get('/heure', function () {
+    return view('heure', [
+        'heure' => now()->format('H:i'),
+        'date' => now()->format('d/m/Y'),
     ]);
 });
