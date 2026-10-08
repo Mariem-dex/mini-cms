@@ -3,7 +3,7 @@
 use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PageController::class, 'home']);
+Route::get('/', [PageController::class, 'home'])->name('home');
 
 $renderBienvenue = function () {
     return view('bienvenu', [
@@ -16,7 +16,7 @@ $renderBienvenue = function () {
 Route::get('/bienvenu', $renderBienvenue);
 Route::get('/bienvenue', $renderBienvenue);
 
-Route::get('/a-propos', [PageController::class, 'about']);
+Route::get('/a-propos', [PageController::class, 'about'])->name('about');
 
 Route::get('/heure', function () {
     return view('heure', [
