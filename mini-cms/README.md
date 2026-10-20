@@ -6,13 +6,11 @@ Auteur : Meriem, groupe 1.
 
 Mini-CMS evoluera au fil du semestre vers une petite plateforme de publication.
 
-## Etat actuel
+## État actuel (tag lab-02b)
 
-- Contrôleurs `PageController` et `PostController`.
-- Layout Blade partagé avec Tailwind et navigation commune.
-- Pages publiques : accueil, à-propos, heure et articles.
-- Captures d'ecran dans `screenshots/`.
-- Depot GitHub : https://github.com/Mariem-dex/mini-cms
+- Pages construites avec des composants Blade anonymes : `x-navbar`, `x-nav-link`, `x-post-card`, `x-alert`, `x-page-header`.
+- Lien actif dans la navigation avec `request()->routeIs()`.
+- Articles toujours stockés dans un tableau PHP, sans base de données pour l'instant.
 
 ## Routes disponibles
 
@@ -76,3 +74,7 @@ Application disponible sur http://localhost:8000.
 ### Détail d'un article
 
 ![Détail d'un article](screenshots/s03-article.png)
+
+### Session 04
+
+![Liste des articles](screenshots/s04-articles.png)
