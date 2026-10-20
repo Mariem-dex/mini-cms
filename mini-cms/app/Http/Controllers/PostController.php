@@ -37,6 +37,7 @@ public function store(Request $request): RedirectResponse
     $validated = $request->validate([
         'title' => ['required', 'string', 'max:255'],
         'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:posts,slug'],
+        'excerpt' => ['nullable', 'string', 'max:255'],
         'body' => ['required', 'string', 'min:20'],
         'is_published' => ['nullable', 'boolean'],
     ]);

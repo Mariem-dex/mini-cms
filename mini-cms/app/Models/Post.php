@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    protected $fillable = [
-        'title',
-        'slug',
-        'body',
-        'is_published',
-        'published_at',
-    ];
+protected $fillable = [
+    'title',
+    'slug',
+    'excerpt',
+    'body',
+    'is_published',
+    'published_at',
+];
 
     protected function casts(): array
     {
