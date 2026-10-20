@@ -86,8 +86,10 @@ public function update(Request $request, Post $post): RedirectResponse
 
     return redirect()->route('posts.show', $post);
 }
-    public function destroy(Post $post)
-    {
-        //
-    }
+public function destroy(Post $post): RedirectResponse
+{
+    $post->delete();
+
+    return redirect()->route('posts.index');
+}
 }

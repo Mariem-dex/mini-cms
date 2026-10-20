@@ -11,6 +11,4 @@ Route::get('/heure', [PageController::class, 'time'])->name('time');
 Route::get('/posts/archive/{year}', [PostController::class, 'archive'])
     ->whereNumber('year')
     ->name('posts.archive');
-
-Route::resource('posts', PostController::class)
-    ->only(['index', 'show', 'create', 'store', 'edit', 'update']);;
+Route::resource('posts', PostController::class);
