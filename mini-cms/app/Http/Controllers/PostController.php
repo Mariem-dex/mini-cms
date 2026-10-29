@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -26,7 +28,8 @@ class PostController extends Controller
             'posts' => Post::published()->with('user', 'category', 'tags')->whereYear('published_at', $year)->latest('id')->paginate(4),
         ]);
     }
-        public function byCategory(Category $category): View
+
+    public function byCategory(Category $category): View
     {
         return view('posts.index', [
             'heading' => 'Catégorie : '.$category->name,
@@ -42,6 +45,7 @@ class PostController extends Controller
     {
         return view('posts.create', [
             'categories' => Category::orderBy('name')->get(),
+            'tags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -54,12 +58,15 @@ class PostController extends Controller
             'body' => ['required', 'string', 'min:20'],
             'is_published' => ['nullable', 'boolean'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ]);
 
         $validated['is_published'] = $request->boolean('is_published');
         $validated['published_at'] = $validated['is_published'] ? now() : null;
 
-        $post = Post::create($validated);
+        $post = Post::create(Arr::except($validated, ['tags']));
+        $post->tags()->sync($validated['tags'] ?? []);
 
         return redirect()->route('posts.show', $post);
     }
@@ -83,9 +90,12 @@ class PostController extends Controller
 
     public function edit(Post $post): View
     {
+        $post->load('tags');
+
         return view('posts.edit', [
             'post' => $post,
             'categories' => Category::orderBy('name')->get(),
+            'tags' => Tag::orderBy('name')->get(),
         ]);
     }
 
@@ -98,12 +108,15 @@ class PostController extends Controller
             'body' => ['required', 'string', 'min:20'],
             'is_published' => ['nullable', 'boolean'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', 'exists:tags,id'],
         ]);
 
         $validated['is_published'] = $request->boolean('is_published');
         $validated['published_at'] = $validated['is_published'] ? ($post->published_at ?? now()) : null;
 
-        $post->update($validated);
+        $post->update(Arr::except($validated, ['tags']));
+        $post->tags()->sync($validated['tags'] ?? []);
 
         return redirect()->route('posts.show', $post);
     }
