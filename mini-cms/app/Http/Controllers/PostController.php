@@ -40,7 +40,17 @@ class PostController extends Controller
                 ->paginate(4),
         ]);
     }
-
+    public function byTag(Tag $tag): View
+    {
+        return view('posts.index', [
+            'heading' => 'Tag : '.$tag->name,
+            'posts' => $tag->posts()
+                ->published()
+                ->with('user', 'category', 'tags')
+                ->latest('published_at')
+                ->paginate(4),
+        ]);
+    }
     public function create(): View
     {
         return view('posts.create', [
