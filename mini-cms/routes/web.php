@@ -3,6 +3,7 @@
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/a-propos', [PageController::class, 'about'])->name('about');
@@ -20,4 +21,7 @@ Route::middleware('writable')->group(function () {
         '/posts/{post}/publication',
         [PostController::class, 'togglePublication']
     )->name('posts.publication');
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('categories', CategoryController::class)->except('show');
+});
 });
