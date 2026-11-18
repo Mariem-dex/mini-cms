@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-use App\Http\Requests\StorePostRequest;  
-use App\Http\Requests\UpdatePostRequest;
+
 class PostController extends Controller
 {
     public function index(): View
@@ -25,7 +25,11 @@ class PostController extends Controller
     {
         return view('posts.index', [
             'heading' => 'Articles de '.$year,
-            'posts' => Post::published()->with('user', 'category', 'tags')->whereYear('published_at', $year)->latest('id')->paginate(4),
+            'posts' => Post::published()
+                ->with('user', 'category', 'tags')
+                ->whereYear('published_at', $year)
+                ->latest('id')
+                ->paginate(4),
         ]);
     }
 
@@ -40,6 +44,7 @@ class PostController extends Controller
                 ->paginate(4),
         ]);
     }
+
     public function byTag(Tag $tag): View
     {
         return view('posts.index', [
@@ -51,6 +56,7 @@ class PostController extends Controller
                 ->paginate(4),
         ]);
     }
+
     public function create(): View
     {
         return view('posts.create', [
@@ -59,18 +65,21 @@ class PostController extends Controller
         ]);
     }
 
-public function store(StorePostRequest $request): RedirectResponse
-{
-    $validated = $request->validated();
+    public function store(StorePostRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
 
-    $validated['is_published'] = $request->boolean('is_published');
-    $validated['published_at'] = $validated['is_published'] ? now() : null;
+        $validated['is_published'] = $request->boolean('is_published');
+        $validated['published_at'] = $validated['is_published'] ? now() : null;
 
-    $post = Post::create(Arr::except($validated, ['tags']));
-    $post->tags()->sync($validated['tags'] ?? []);
+        $post = Post::create(Arr::except($validated, ['tags']));
+        $post->tags()->sync($validated['tags'] ?? []);
 
-    return redirect()->route('posts.show', $post);
-}
+        return redirect()
+            ->route('posts.show', $post)
+            ->with('success', 'Article créé.');
+    }
+
     public function show(Post $post): View
     {
         $post->load('user', 'category', 'tags');
@@ -99,26 +108,30 @@ public function store(StorePostRequest $request): RedirectResponse
         ]);
     }
 
-public function update(UpdatePostRequest $request, Post $post): RedirectResponse
-{
-    $validated = $request->validated();
+    public function update(UpdatePostRequest $request, Post $post): RedirectResponse
+    {
+        $validated = $request->validated();
 
-    $validated['is_published'] = $request->boolean('is_published');
-    $validated['published_at'] = $validated['is_published']
-        ? ($post->published_at ?? now())
-        : null;
+        $validated['is_published'] = $request->boolean('is_published');
+        $validated['published_at'] = $validated['is_published']
+            ? ($post->published_at ?? now())
+            : null;
 
-    $post->update(Arr::except($validated, ['tags']));
-    $post->tags()->sync($validated['tags'] ?? []);
+        $post->update(Arr::except($validated, ['tags']));
+        $post->tags()->sync($validated['tags'] ?? []);
 
-    return redirect()->route('posts.show', $post);
-}
+        return redirect()
+            ->route('posts.show', $post)
+            ->with('success', 'Article mis à jour.');
+    }
 
     public function destroy(Post $post): RedirectResponse
     {
         $post->delete();
 
-        return redirect()->route('posts.index');
+        return redirect()
+            ->route('posts.index')
+            ->with('success', 'Article supprimé.');
     }
 
     public function togglePublication(Post $post): RedirectResponse
@@ -130,6 +143,11 @@ public function update(UpdatePostRequest $request, Post $post): RedirectResponse
             'published_at' => $isPublished ? now() : null,
         ]);
 
-        return redirect()->route('posts.show', $post);
+        return redirect()
+            ->route('posts.show', $post)
+            ->with(
+                'success',
+                $isPublished ? 'Article publié.' : 'Article dépublié.'
+            );
     }
 }
