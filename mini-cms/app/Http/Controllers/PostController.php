@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
-
+use App\Http\Requests\StorePostRequest;  
 class PostController extends Controller
 {
     public function index(): View
@@ -59,28 +59,18 @@ class PostController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:posts,slug'],
-            'excerpt' => ['nullable', 'string', 'max:255'],
-            'body' => ['required', 'string', 'min:20'],
-            'is_published' => ['nullable', 'boolean'],
-            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'tags' => ['nullable', 'array'],
-            'tags.*' => ['integer', 'exists:tags,id'],
-        ]);
+public function store(StorePostRequest $request): RedirectResponse
+{
+    $validated = $request->validated();
 
-        $validated['is_published'] = $request->boolean('is_published');
-        $validated['published_at'] = $validated['is_published'] ? now() : null;
+    $validated['is_published'] = $request->boolean('is_published');
+    $validated['published_at'] = $validated['is_published'] ? now() : null;
 
-        $post = Post::create(Arr::except($validated, ['tags']));
-        $post->tags()->sync($validated['tags'] ?? []);
+    $post = Post::create(Arr::except($validated, ['tags']));
+    $post->tags()->sync($validated['tags'] ?? []);
 
-        return redirect()->route('posts.show', $post);
-    }
-
+    return redirect()->route('posts.show', $post);
+}
     public function show(Post $post): View
     {
         $post->load('user', 'category', 'tags');
