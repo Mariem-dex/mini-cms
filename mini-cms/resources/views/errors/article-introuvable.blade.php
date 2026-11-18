@@ -10,6 +10,16 @@
         Vérifiez l'adresse, ou parcourez la liste des articles.
     </x-alert>
 
+    @if ($recentPosts->isNotEmpty())
+        <h2 class="mt-10 text-2xl font-bold">Articles récents</h2>
+
+        <div class="mt-4 grid gap-6 md:grid-cols-3">
+            @foreach ($recentPosts as $post)
+                <x-post-card :post="$post" />
+            @endforeach
+        </div>
+    @endif
+
     <p class="mt-6">
         <a
             href="{{ route('posts.index') }}"
