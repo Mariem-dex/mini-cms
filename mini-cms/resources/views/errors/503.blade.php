@@ -1,7 +1,9 @@
 <x-layout>
-    <x-slot:title>Site indisponible - Mini-CMS</x-slot:title>
+    <x-slot:title>Service momentanément indisponible - Mini-CMS</x-slot:title>
 
-    <h1 class="text-3xl font-bold text-gray-900">Site indisponible</h1>
+    <h1 class="text-3xl font-bold text-gray-900">
+        Service momentanément indisponible
+    </h1>
 
     <p class="mt-2 mb-8 text-gray-600">
         L'écriture est temporairement désactivée.
