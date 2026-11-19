@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -18,7 +19,21 @@ class PostController extends Controller
     {
         return view('posts.index', [
             'heading' => 'Tous les articles',
-            'posts' => Post::with('user', 'category', 'tags')->latest('id')->paginate(4),
+            'posts' => Post::with('user', 'category', 'tags')
+                ->latest('id')
+                ->paginate(4),
+        ]);
+    }
+
+    public function mine(Request $request): View
+    {
+        return view('posts.index', [
+            'heading' => 'Mes articles',
+            'posts' => $request->user()
+                ->posts()
+                ->with('user', 'category', 'tags')
+                ->latest('id')
+                ->paginate(4),
         ]);
     }
 
@@ -73,7 +88,10 @@ class PostController extends Controller
         $validated['is_published'] = $request->boolean('is_published');
         $validated['published_at'] = $validated['is_published'] ? now() : null;
 
-$post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
+        $post = $request->user()
+            ->posts()
+            ->create(Arr::except($validated, ['tags']));
+
         $post->tags()->sync($validated['tags'] ?? []);
 
         return redirect()
@@ -101,6 +119,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
     public function edit(Post $post): View
     {
         Gate::authorize('update', $post);
+
         $post->load('tags');
 
         return view('posts.edit', [
@@ -110,8 +129,10 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
         ]);
     }
 
-    public function update(UpdatePostRequest $request, Post $post): RedirectResponse
-    {
+    public function update(
+        UpdatePostRequest $request,
+        Post $post
+    ): RedirectResponse {
         $validated = $request->validated();
 
         $validated['is_published'] = $request->boolean('is_published');
@@ -130,6 +151,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
     public function destroy(Post $post): RedirectResponse
     {
         Gate::authorize('delete', $post);
+
         $post->delete();
 
         return redirect()
@@ -140,6 +162,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
     public function togglePublication(Post $post): RedirectResponse
     {
         Gate::authorize('update', $post);
+
         $isPublished = ! $post->is_published;
 
         $post->update([

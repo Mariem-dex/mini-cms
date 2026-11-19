@@ -39,7 +39,9 @@ it('records the logged-in user as the author', function () {
 
 it('lets an author edit their own post', function () {
     $author = User::factory()->create();
-    $post = Post::factory()->create(['user_id' => $author->id]);
+    $post = Post::factory()->create([
+        'user_id' => $author->id,
+    ]);
 
     $this->actingAs($author)
         ->get(route('posts.edit', $post))
@@ -107,4 +109,30 @@ it('keeps the category back office for admins', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->get(route('admin.categories.index'))
         ->assertOk();
+});
+
+it('shows only the connected user posts on my posts', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    Post::factory()->create([
+        'title' => 'Mon article visible',
+        'user_id' => $user->id,
+    ]);
+
+    Post::factory()->create([
+        'title' => 'Article autre utilisateur',
+        'user_id' => $otherUser->id,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('my-posts'))
+        ->assertOk()
+        ->assertSee('Mon article visible')
+        ->assertDontSee('Article autre utilisateur');
+});
+
+it('redirects a visitor away from my posts', function () {
+    $this->get(route('my-posts'))
+        ->assertRedirect(route('login'));
 });

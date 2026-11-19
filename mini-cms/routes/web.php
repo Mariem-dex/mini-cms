@@ -42,6 +42,9 @@ Route::post('/deconnexion', [LoginController::class, 'destroy'])
 
 Route::middleware('writable')->group(function () {
     Route::middleware('auth')->group(function () {
+        Route::get('/mes-articles', [PostController::class, 'mine'])
+            ->name('my-posts');
+
         Route::resource('posts', PostController::class)
             ->except(['index', 'show']);
 
@@ -51,8 +54,11 @@ Route::middleware('writable')->group(function () {
         )->name('posts.publication');
 
         Route::prefix('admin')->name('admin.')->group(function () {
-            Route::resource('categories', CategoryController::class)->except('show');
-            Route::resource('tags', TagController::class)->except('show');
+            Route::resource('categories', CategoryController::class)
+                ->except('show');
+
+            Route::resource('tags', TagController::class)
+                ->except('show');
         });
     });
 

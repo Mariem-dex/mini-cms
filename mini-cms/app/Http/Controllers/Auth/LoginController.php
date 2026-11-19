@@ -18,7 +18,12 @@ class LoginController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
-        if (! Auth::attempt($request->validated())) {
+        $remember = $request->boolean('remember');
+
+        if (! Auth::attempt(
+            $request->safe()->except('remember'),
+            $remember
+        )) {
             return back()
                 ->withErrors([
                     'email' => 'Ces identifiants ne correspondent à aucun compte.',

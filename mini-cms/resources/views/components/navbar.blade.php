@@ -11,22 +11,29 @@
         <x-nav-link to="posts.index" match="posts.*">Articles</x-nav-link>
         <x-nav-link to="time">Heure</x-nav-link>
         <x-nav-link to="about">À propos</x-nav-link>
+
         @can('manage-categories')
-    <x-nav-link
-        to="admin.categories.index"
-        match="admin.categories.*" >
-        Catégories
-    </x-nav-link>
-@endcan
+            <x-nav-link
+                to="admin.categories.index"
+                match="admin.categories.*"
+            >
+                Catégories
+            </x-nav-link>
+        @endcan
 
         <div class="ml-auto flex flex-wrap items-center gap-2">
             @auth
+                <x-nav-link to="my-posts">
+                    Mes articles
+                </x-nav-link>
+
                 <span class="text-sm text-gray-600">
                     {{ auth()->user()->name }}
                 </span>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
+
                     <button
                         type="submit"
                         class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
