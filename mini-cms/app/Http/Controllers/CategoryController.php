@@ -6,24 +6,32 @@ use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
     public function index(): View
     {
-        $categories = Category::withCount('posts')->orderBy('name')->get();
+        Gate::authorize('manage-categories');
+
+        $categories = Category::withCount('posts')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.categories.index', compact('categories'));
     }
 
     public function create(): View
     {
+        Gate::authorize('manage-categories');
+
         return view('admin.categories.create');
     }
 
-    public function store(StoreCategoryRequest $request): RedirectResponse
-    {
+    public function store(
+        StoreCategoryRequest $request
+    ): RedirectResponse {
         Category::create($request->validated());
 
         return redirect()
@@ -33,6 +41,8 @@ class CategoryController extends Controller
 
     public function edit(Category $category): View
     {
+        Gate::authorize('manage-categories');
+
         return view('admin.categories.edit', compact('category'));
     }
 
@@ -49,6 +59,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
+        Gate::authorize('manage-categories');
+
         $category->delete();
 
         return redirect()
