@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class PostController extends Controller
@@ -99,6 +100,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
 
     public function edit(Post $post): View
     {
+        Gate::authorize('update', $post);
         $post->load('tags');
 
         return view('posts.edit', [
@@ -127,6 +129,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
 
     public function destroy(Post $post): RedirectResponse
     {
+        Gate::authorize('delete', $post);
         $post->delete();
 
         return redirect()
@@ -136,6 +139,7 @@ $post = $request->user()->posts()->create(Arr::except($validated, ['tags']));
 
     public function togglePublication(Post $post): RedirectResponse
     {
+        Gate::authorize('update', $post);
         $isPublished = ! $post->is_published;
 
         $post->update([
