@@ -9,18 +9,22 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
         //
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
         Model::preventLazyLoading(! app()->isProduction());
 
-        Gate::define(
-            'manage-categories',
-            fn (User $user) => $user->isAdmin()
-        );
+        Gate::define('manage-categories', fn (User $user) => $user->isAdmin());
+        Gate::define('manage-tags', fn (User $user) => $user->isAdmin());
     }
 }
