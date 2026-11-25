@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureSiteIsWritable;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
@@ -18,37 +19,25 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'writable' => EnsureSiteIsWritable::class,
+            'admin' => EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (
-            NotFoundHttpException $e,
-            Request $request
-        ) {
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+
+        $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return null;
             }
 
             $previous = $e->getPrevious();
 
-            if (
-                $previous instanceof ModelNotFoundException
-                && $previous->getModel() === Post::class
-            ) {
-$recentPosts = Post::published()
-    ->with('user', 'category', 'tags')
-    ->latest('published_at')
-    ->take(3)
-    ->get();
-
-return response()->view(
-    'errors.article-introuvable',
-    ['recentPosts' => $recentPosts],
-    404
-);
+            if ($previous instanceof ModelNotFoundException && $previous->getModel() === Post::class) {
+                return response()->view('errors.article-introuvable', [], 404);
             }
 
             return null;
         });
-    })
-    ->create();
+    })->create();
