@@ -53,8 +53,7 @@ Route::middleware('writable')->group(function () {
             [PostController::class, 'togglePublication']
         )->name('posts.publication');
 
-        Route::prefix('admin')->name('admin.')->group(function () {
-            Route::resource('categories', CategoryController::class)
+        Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {            Route::resource('categories', CategoryController::class)
                 ->except('show');
 
             Route::resource('tags', TagController::class)
