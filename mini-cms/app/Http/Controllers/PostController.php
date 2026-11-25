@@ -22,7 +22,13 @@ class PostController extends Controller
             'posts' => Post::visibleTo($request->user())->with('user', 'category', 'tags')->latest('id')->paginate(4),
         ]);
     }
-
+    public function mine(Request $request): View
+    {
+        return view('posts.index', [
+            'heading' => 'Mes articles',
+            'posts' => $request->user()->posts()->with('user', 'category', 'tags')->latest('id')->paginate(4),
+        ]);
+    }
     public function archive(string $year): View
     {
         return view('posts.index', [
