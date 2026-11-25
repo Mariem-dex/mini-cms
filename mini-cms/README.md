@@ -151,3 +151,20 @@ Back-office des catégories et des tags, messages de validation en français, pa
 ![Barre de navigation d'un utilisateur connecté, avec le message « Vous êtes connecté. »](screenshots/s11-connexion.png)
 
 ![Page 403 quand un auteur ouvre la modification de l'article d'un autre auteur](screenshots/s11-interdit.png)
+
+## Comparaison avec le starter kit Livewire
+
+| Critère | Mini-CMS (authentification manuelle) | Starter kit Livewire |
+|---|---|---|
+| Routes d'authentification | Écrites à la main dans `routes/web.php` (`/inscription`, `/connexion`, `/deconnexion`) | Enregistrées par Fortify depuis son paquet, absentes de `routes/web.php` |
+| Inscription | `app/Http/Controllers/Auth/RegisterController.php` | `app/Actions/Fortify/CreateNewUser.php` et `resources/views/pages/auth/register.blade.php` |
+| Connexion | `app/Http/Controllers/Auth/LoginController.php` (`store` : `Auth::attempt` puis `regenerate`) | Contrôleur de Fortify et `resources/views/pages/auth/login.blade.php` |
+| Déconnexion | `LoginController::destroy` (`logout`, `invalidate`, `regenerateToken`) | Route `logout` de Fortify et `app/Livewire/Actions/Logout.php` (les mêmes trois opérations) |
+| Limitation des tentatives | Aucune : un robot peut essayer des mots de passe sans fin | 5 tentatives par minute par e-mail et adresse IP (`app/Providers/FortifyServiceProvider.php`) |
+| Mot de passe oublié | Absent | `Features::resetPasswords()` dans `config/fortify.php` |
+| Vérification de l'e-mail | Absente | `Features::emailVerification()`, `MustVerifyEmail` sur `User`, middleware `verified` |
+| Double authentification | Absente | `Features::twoFactorAuthentication()` et `Features::passkeys()` |
+| Rôles et autorisations | Colonne `role`, `User::isAdmin()`, Gates dans `app/Providers/AppServiceProvider.php`, `app/Policies/PostPolicy.php`, middleware `app/Http/Middleware/EnsureUserIsAdmin.php` | Aucun : à écrire soi-même |
+| Tests | `tests/Feature/AuthTest.php`, `AuthorizationTest.php`, `AdminAccessTest.php`, `PostVisibilityTest.php` | 10 fichiers dans `tests/Feature` (Auth, Settings, Dashboard) |
+
+Ce que je garderais du kit dans un vrai projet : la limitation des tentatives de connexion, le mot de passe oublié et la vérification de l'e-mail, qui protègent les comptes sans que j'aie à les réécrire. Je garderais mes propres Gates et Policies, car aucun kit ne connaît les rôles de mon application.
