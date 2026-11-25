@@ -5,15 +5,13 @@ Projet fil rouge de l'Atelier Framework Cote Serveur (Laravel 13, PHP 8.3+).
 Auteur : Meriem, groupe 1.
 
 Mini-CMS evoluera au fil du semestre vers une petite plateforme de publication.
-## État actuel (tag lab-06)
+## État actuel (tag lab-06b)
 
-- Comptes écrits à la main : inscription (`/inscription`), connexion (`/connexion`) et déconnexion, avec `Hash::make`, `Auth::attempt` et la régénération de la session.
-- Colonne `role` (`author` par défaut, `admin`). Après `php artisan migrate:fresh --seed`, le compte de démonstration `test@example.com` (mot de passe `password`) est administrateur.
-- Écritures et back-office réservés aux utilisateurs connectés (middleware `auth`) ; chaque nouvel article est attaché à son auteur.
-- Gate `manage-categories` : seuls les administrateurs gèrent les catégories.
-- `PostPolicy` : un auteur modifie et supprime ses articles, un administrateur tous les articles.
-- Tests Pest : `PostPagesTest`, `PostWriteTest`, `PostRelationsTest`, `PostTaxonomyTest`, `PostFeedbackTest`, `CategoryAdminTest`, `ErrorPagesTest`, `AuthTest` et `AuthorizationTest`.
-
+- Middleware `admin` (`App\Http\Middleware\EnsureUserIsAdmin`) sur tout `/admin` : un auteur reçoit 403 « Réservé aux administrateurs. ».
+- Gate `manage-tags`, comme `manage-categories` : contrôleur, Form Requests et menu.
+- Brouillons protégés : `PostPolicy::view` et le scope `visibleTo` ; un brouillon n'est visible que par son auteur et les administrateurs.
+- Tests d'autorisation : `AdminAccessTest` (7 tests) et `PostVisibilityTest` (5 tests), en plus des fichiers de la session 11.
+- Comparaison écrite avec le starter kit Livewire (section ci-dessous).
 ## Routes disponibles
 
 | Méthode | URI | Nom | Action |
@@ -168,3 +166,9 @@ Back-office des catégories et des tags, messages de validation en français, pa
 | Tests | `tests/Feature/AuthTest.php`, `AuthorizationTest.php`, `AdminAccessTest.php`, `PostVisibilityTest.php` | 10 fichiers dans `tests/Feature` (Auth, Settings, Dashboard) |
 
 Ce que je garderais du kit dans un vrai projet : la limitation des tentatives de connexion, le mot de passe oublié et la vérification de l'e-mail, qui protègent les comptes sans que j'aie à les réécrire. Je garderais mes propres Gates et Policies, car aucun kit ne connaît les rôles de mon application.
+
+### Session 12
+
+![Page 403 « Réservé aux administrateurs. » pour un compte auteur sur /admin/tags](screenshots/s12-admin-interdit.png)
+
+![Barre de navigation d'un compte auteur, sans les liens Catégories et Tags](screenshots/s12-menu-auteur.png)
