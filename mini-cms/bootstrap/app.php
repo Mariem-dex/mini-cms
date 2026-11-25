@@ -13,19 +13,21 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'writable' => EnsureSiteIsWritable::class,
-        ]);
-                $middleware->alias([
-            'writable' => EnsureSiteIsWritable::class,
             'admin' => EnsureUserIsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+        );
+
         $exceptions->render(function (
             NotFoundHttpException $e,
             Request $request
@@ -40,17 +42,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 $previous instanceof ModelNotFoundException
                 && $previous->getModel() === Post::class
             ) {
-$recentPosts = Post::published()
-    ->with('user', 'category', 'tags')
-    ->latest('published_at')
-    ->take(3)
-    ->get();
+                $recentPosts = Post::published()
+                    ->with('user', 'category', 'tags')
+                    ->latest('published_at')
+                    ->take(3)
+                    ->get();
 
-return response()->view(
-    'errors.article-introuvable',
-    ['recentPosts' => $recentPosts],
-    404
-);
+                return response()->view(
+                    'errors.article-introuvable',
+                    ['recentPosts' => $recentPosts],
+                    404
+                );
             }
 
             return null;
